@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dahuavto 配置管理页面</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f0f4f8;
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 16px 0;
+            border-bottom: 2px solid #4a6ea9;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        .description {
+            color: #5a6b82;
+            font-size: 0.95rem;
+        }
+        .config-section {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            color: #4a6ea9;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e1e7ed;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #445673;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d9e6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a6ea9;
+            box-shadow: 0 0 0 3px rgba(74, 110, 169, 0.15);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        #saveBtn {
+            background: #4a6ea9;
+            color: white;
+        }
+        #saveBtn:hover {
+            background: #3a5a90;
+        }
+        #resetBtn {
+            background: #f0f4f8;
+            color: #4a6ea9;
+            border: 1px solid #d1d9e6;
+        }
+        #resetBtn:hover {
+            background: #e1e7ed;
+        }
+        .status {
+            padding: 12px;
+            margin-top: 16px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+        .device-section {
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f8fafd;
+            border: 1px solid #e1e7ed;
+        }
+        .delete-device {
+            display: block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #ffebee;
+            color: #c62828;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            float: right;
+        }
+        .delete-device:hover {
+            background: #ffcdd2;
+        }
+        #addDeviceBtn {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            margin-top: 16px;
+        }
+        #addDeviceBtn:hover {
+            background: #c8e6c9;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #7a8ca5;
+            border-top: 1px solid #e1e7ed;
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Dahuavto 配置管理页面</h1>
+    <p class="description">基于openwrt的米家门禁系统</p>
+</header>
+
+<div class="config-section">
+    <h2 class="section-title">服务设置</h2>
+
+    <div class="form-group">
+        <label for="listen">监听地址和端口</label>
+        <input type="text" disabled id="listen" placeholder=":2066">
+    </div>
+
+    <div class="form-group">
+        <label for="username">管理员用户名</label>
+        <input type="text" disabled id="username" placeholder="admin">
+    </div>
+
+    <div class="form-group">
+        <label for="password">管理员密码</label>
+        <input type="password" id="password" placeholder="留空表示不更改密码">
+    </div>
+    <div class="form-group">
+        <label for="userid">呼叫房间号</label>
+        <input type="text" id="userid" placeholder="填入房间号，不带楼栋，例201">
+    </div>
+
+</div>
+<div class="config-section">
+    <h2 class="section-title">可选配置</h2>
+    <div class="form-group">
+        <label for="bafa_key">巴法云密钥</label>
+        <input type="text" id="bafa_key" placeholder="">
+    </div>
+    <div class="form-group">
+        <label for="mqtt_host">HA-Mqtt地址</label>
+        <input type="text" id="mqtt_host" placeholder="x.x.x.x:1883">
+    </div>
+    <div class="form-group">
+        <label for="mqtt_user">HA-Mqtt账号</label>
+        <input type="text" id="mqtt_user" placeholder="">
+    </div>
+    <div class="form-group">
+        <label for="mqtt_pass">HA-Mqtt密码</label>
+        <input type="password" id="mqtt_pass" placeholder="">
+    </div>
+    <div class="form-group">
+        <label for="sip_interface">呼叫网卡设备</label>
+        <input type="text" id="sip_interface" placeholder="通过监听网卡获取呼叫信息">
+    </div>
+    <div class="form-group">
+        <label for="auto_open">呼叫自动开门</label>
+        <select id="auto_open">
+            <option value="true" ${configData.auto_open ==="true"?"selected":""}>开启</option>
+            <option value="false" ${configData.auto_open ==="false"?"selected":""}>关闭</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="gpio_out">有人呼叫提醒 GPIO</label>
+        <input type="text" id="gpio_out" placeholder="call_notify">
+    </div>
+</div>
+
+<div class="config-section">
+    <h2 class="section-title">VTO配置</h2>
+
+    <div id="devicesContainer">
+        <!-- 设备配置区域由JS动态生成 -->
+    </div>
+
+    <button id="addDeviceBtn">+ 添加新设备</button>
+</div>
+
+<div class="action-buttons">
+    <button id="saveBtn">保存配置</button>
+    <button id="resetBtn">恢复默认</button>
+</div>
+
+<div class="status" id="statusMessage"></div>
+
+<footer>
+    <p>Dahuavto config by real</p>
+</footer>
+
+<script>
+    // 配置数据结构
+    let configData = {};
+
+    // 初始化函数
+    function initialize() {
+        renderMainConfig();
+        renderDevices();
+        setupEventListeners();
+        getConfig();
+    }
+
+    // 渲染主配置
+    function renderMainConfig() {
+        document.getElementById('listen').value = configData.listen;
+        document.getElementById('username').value = configData.username;
+        document.getElementById('password').value = configData.password;
+        document.getElementById('gpio_out').value = configData.gpio_out;
+        document.getElementById('userid').value = configData.userid;
+        document.getElementById('bafa_key').value = configData.bafa_key;
+        document.getElementById('sip_interface').value = configData.sip_interface;
+        document.getElementById('mqtt_host').value = configData.mqtt_host;
+        document.getElementById('mqtt_user').value = configData.mqtt_user;
+        document.getElementById('mqtt_pass').value = configData.mqtt_pass;
+        document.getElementById('auto_open').value = configData.auto_open || 'false';
+    }
+
+    // 渲染设备配置
+    function renderDevices() {
+        const container = document.getElementById('devicesContainer');
+        container.innerHTML = '';
+
+        configData.vtos?configData.vtos.forEach((device, index) => {
+            // 生成RTSP链接
+            const rtspLink = device.ip && device.name && device.password ?
+                `rtsp://${device.name}:${device.password}@${device.ip}:554/cam/realmonitor?channel=1&subtype=1` :
+                '请先填写IP、用户名和密码';
+            const deviceElement = document.createElement('div');
+            deviceElement.className = 'device-section';
+            deviceElement.innerHTML = `
+                    <h3>设备配置 #${index + 1}</h3>
+                    <div class="form-group">
+                        <label for="ip_${index}">设备IP地址</label>
+                        <input type="text" id="ip_${index}" value="${device.ip}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="port_${index}">设备端口</label>
+                        <input type="text" id="port_${index}" value="${device.port}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name_${index}">登录用户名</label>
+                        <input type="text" id="name_${index}" value="${device.name}">
+                    </div>
+                    <div class="form-group">
+                        <label for="device_password_${index}">登录密码</label>
+                        <input type="text" id="device_password_${index}" value="${device.password}" placeholder="设备密码">
+                    </div>
+                    <div class="form-group">
+                    <label for="rtsp_${index}">RTSP流地址</label>
+                    <input type="text" id="rtsp_${index}" value="${rtspLink}" readonly style="background-color: #f5f5f5;">
+                    <small style="display: block; margin-top: 5px; color: #666;">此地址会根据上方信息自动生成，配置摄像头时请保证HA能访问到该地址</small>
+                </div>
+                   <div class="form-group">
+                        <label for="btn_name_${index}">按钮名称</label>
+                        <input type="text" id="btn_name_${index}" value="${device.btn_name}">
+                    </div>
+                    <div class="form-group">
+                        <label for="gpio_${index}">GPIO端口</label>
+                        <input type="text" id="gpio_${index}" value="${device.gpio}">
+                    </div>
+                    <div class="form-group">
+                        <label for="user_id">呼叫房间号</label>
+                        <input type="text" id="userid_${index}" placeholder="留空使用通用配置" value="${device.userid}">
+                    </div>
+                    <button class="delete-device" data-index="${index}">删除设备</button>
+                `;
+            container.appendChild(deviceElement);
+        }):null;
+    }
+
+    // 设置事件监听器
+    function setupEventListeners() {
+        // 保存配置
+        document.getElementById('saveBtn').addEventListener('click', saveConfig);
+
+        // 重置配置
+        document.getElementById('resetBtn').addEventListener('click', resetConfig);
+
+        // 添加新设备
+        document.getElementById('addDeviceBtn').addEventListener('click', addNewDevice);
+
+        // 设置删除设备的事件代理
+        document.getElementById('devicesContainer').addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-device')) {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                deleteDevice(index);
+            }
+        });
+    }
+
+    // 添加新设备
+    function addNewDevice() {
+        if (configData.vtos===undefined){
+            configData.vtos = [];
+        }
+        collectConfigData();
+        configData.vtos.push({
+            id: (configData.vtos.length + 1).toString(),
+            ip: '192.168.0.100',
+            port: '80',
+            name: 'admin',
+            gpio: '',
+            password: '',
+            btn_name:"",
+            userid:"",
+        });
+        renderDevices();
+    }
+
+    // 删除设备
+    function deleteDevice(index) {
+        if (configData.vtos.length > 1) {
+            configData.vtos.splice(index, 1);
+            renderDevices();
+        } else {
+            showStatus('至少需要保留一个设备配置', 'error');
+        }
+    }
+
+    // 收集配置数据
+    function collectConfigData() {
+        // 收集主配置
+        configData.listen = document.getElementById('listen').value;
+        configData.username = document.getElementById('username').value;
+        const mainPass = document.getElementById('password').value;
+        if (mainPass) configData.password = mainPass;
+        configData.gpio_out = document.getElementById('gpio_out').value;
+        configData.userid = document.getElementById('userid').value;
+        configData.bafa_key = document.getElementById('bafa_key').value;
+        configData.sip_interface = document.getElementById('sip_interface').value;
+        configData.mqtt_host = document.getElementById('mqtt_host').value;
+        configData.mqtt_user = document.getElementById('mqtt_user').value;
+        configData.mqtt_pass = document.getElementById('mqtt_pass').value;
+        configData.auto_open = document.getElementById('auto_open').value;
+
+        // 收集设备配置
+        configData.vtos.forEach((device, index) => {
+            device.ip = document.getElementById(`ip_${index}`).value;
+            device.port =  parseInt(document.getElementById(`port_${index}`).value);
+            device.name = document.getElementById(`name_${index}`).value;
+            device.gpio = parseInt(document.getElementById(`gpio_${index}`).value);
+            device.btn_name = document.getElementById(`btn_name_${index}`).value;
+            device.userid = document.getElementById(`userid_${index}`).value;
+            device.password = document.getElementById(`device_password_${index}`).value;
+        });
+    }
+    function getConfig(){
+        fetch('api/config')
+            .then(response => response.json())
+            .then(data => {
+                configData = data;
+                renderMainConfig();
+                renderDevices();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    // 保存配置
+    function saveConfig() {
+        collectConfigData();
+
+        // 验证配置
+        if (!validateConfig()) return;
+
+        // 显示保存中状态
+        showStatus('保存配置中...');
+
+        // 构造保存的数据
+        const data = {
+            listen: configData.listen,
+            username: configData.username,
+            password: configData.password,
+            gpio_out: configData.gpio_out,
+            userid: configData.userid,
+            bafa_key: configData.bafa_key,
+            mqtt_host: configData.mqtt_host,
+            mqtt_user: configData.mqtt_user,
+            mqtt_pass: configData.mqtt_pass,
+            sip_interface: configData.sip_interface,
+            vtos: configData.vtos,
+            auto_open: configData.auto_open==="true",
+        };
+
+        // 发送到后端（假设Golang在/save_config处理）
+        fetch('api/config', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result);
+                if (result.result??result.result==="success") {
+                    showStatus('配置保存成功!程序正在重启，请稍后刷新页面！', 'success');
+                } else {
+                    showStatus(`保存失败: ${result.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('网络错误: ' + error.message, 'error');
+            });
+    }
+
+    // 重置配置
+    function resetConfig() {
+        if (confirm('确定要恢复默认设置吗？所有修改将丢失！')) {
+            getConfig();
+        }
+    }
+
+    // 显示状态信息
+    function showStatus(message, type = '') {
+        const statusEl = document.getElementById('statusMessage');
+        statusEl.textContent = message;
+        statusEl.className = 'status';
+
+        if (type === 'success') {
+            statusEl.classList.add('success');
+        } else if (type === 'error') {
+            statusEl.classList.add('error');
+        } else {
+            // 中性消息样式
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#e1e7ed';
+            statusEl.style.color = '#445673';
+        }
+
+        // 3秒后自动隐藏成功/中性消息
+        if (type !== 'error') {
+            setTimeout(() => {
+                if (!statusEl.classList.contains('error')) {
+                    statusEl.style.display = 'none';
+                }
+            }, 5000);
+        }
+    }
+
+    // 验证配置
+    function validateConfig() {
+        const main = configData;
+
+        // 验证主配置
+        if (!main.listen) {
+            showStatus('监听地址不能为空', 'error');
+            return false;
+        }
+
+        if (!main.username) {
+            showStatus('管理员用户名不能为空', 'error');
+            return false;
+        }
+
+        // 验证设备配置
+        for (const device of configData.vtos) {
+            if (!device.ip) {
+                showStatus('设备IP地址不能为空', 'error');
+                return false;
+            }
+
+            if (!device.port) {
+                showStatus('设备端口不能为空', 'error');
+                return false;
+            }
+
+            if (!device.name) {
+                showStatus('设备用户名不能为空', 'error');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', initialize);
+</script>
+</body>
+</html>
