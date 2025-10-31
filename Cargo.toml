@@ -1,0 +1,36 @@
+[package]
+name = "dahuavto-rs"
+version = "1.0.0"
+edition = "2021"
+authors = ["real"]
+description = "Dahua VTO client implementation in Rust"
+license = "MIT OR Apache-2.0"
+[dependencies]
+tokio = {version = "1.47.1",features = ["rt", "net", "io-util", "macros", "sync","time","fs"]}
+serde = { version = "1.0", features = ["derive"], default-features = false }
+serde_json = { version ="1.0.143", default-features = false, features = ["alloc"] }
+hex = { version = "0.4.3" }
+md-5 = "0.10.6"
+axum = "0.8.4"
+ureq = { version = "2.6", default-features = false, features = ["tls", "json"] }
+log = "0.4.27"
+anyhow = "1.0.99"
+rumqttc = { version = "0.24.0", default-features = false, features = ["use-rustls"] }
+syslog = "7.0.0"
+simplelog = "0.12.2"
+base64 = "0.22.1"
+pnet = "0.35.0"
+regex = "1.11.2"
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+[profile.release]
+lto = "fat"
+codegen-units = 1
+opt-level = "z"
+panic = "abort"
+strip = true
+overflow-checks = false
+debug = 0
+incremental = false
+[profile.release.package."*"]
+
